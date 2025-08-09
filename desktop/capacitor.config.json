@@ -1,0 +1,10 @@
+{
+  "appId": "com.rendezvouschurchus.app",
+  "appName": "Rendezvous",
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  }
+}
