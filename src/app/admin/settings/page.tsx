@@ -380,10 +380,20 @@ export default function AdminSettingsPage() {
     setEditingUser({ ...user });
     setIsUserDialogOpen(true);
   };
+  
+  const handleAddNewUser = () => {
+    setEditingUser({ name: '', email: '', role: 'Viewer', initials: '' });
+    setIsUserDialogOpen(true);
+  };
 
   const handleSaveUserChanges = () => {
     if (editingUser) {
-      setUsers(users.map(u => u.email === editingUser.email ? editingUser : u));
+        const isNew = !users.some(u => u.email === editingUser.email);
+        if (isNew) {
+            setUsers([...users, {...editingUser, initials: editingUser.name.split(' ').map(n => n[0]).join('')}]);
+        } else {
+            setUsers(users.map(u => u.email === editingUser.email ? editingUser : u));
+        }
     }
     setIsUserDialogOpen(false);
     setEditingUser(null);
@@ -602,7 +612,7 @@ export default function AdminSettingsPage() {
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
-          <TabsTrigger value="navigation">Navigation</TabsTrigger>
+          {currentUserRole !== 'Viewer' && <TabsTrigger value="navigation">Navigation</TabsTrigger>}
           {canEditContent && <TabsTrigger value="users">Users</TabsTrigger>}
           {canEditContent && <TabsTrigger value="events">Events</TabsTrigger>}
           {canEditContent && <TabsTrigger value="sermons">Sermons</TabsTrigger>}
@@ -676,7 +686,7 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="navigation">
+        {currentUserRole !== 'Viewer' && <TabsContent value="navigation">
           <Card>
             <CardHeader>
               <CardTitle>Sidebar Navigation</CardTitle>
@@ -713,16 +723,24 @@ export default function AdminSettingsPage() {
                 <Button>Save Changes</Button>
             </CardFooter>
           </Card>
-        </TabsContent>
+        </TabsContent>}
 
 
         {canEditContent && <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle>User Management</CardTitle>
-              <CardDescription>
-                Manage who has access to your application.
-              </CardDescription>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <CardTitle>User Management</CardTitle>
+                        <CardDescription>
+                            Manage who has access to your application.
+                        </CardDescription>
+                    </div>
+                    <Button onClick={handleAddNewUser}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add User
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent>
               <Table>
