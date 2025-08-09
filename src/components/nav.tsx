@@ -11,6 +11,7 @@ import {
   LogIn,
   Sparkles,
   Settings,
+  KeyRound,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
   { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
+  { href: "/login", label: "Login", icon: KeyRound },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 

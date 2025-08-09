@@ -7,6 +7,7 @@ import {
   Clapperboard,
   LogIn,
   Sparkles,
+  KeyRound,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -65,6 +66,12 @@ const features = [
     description: 'Generate welcome messages',
     href: '/welcome',
     icon: Sparkles,
+  },
+  {
+    title: 'Login',
+    description: 'Access your account',
+    href: '/login',
+    icon: KeyRound,
   },
 ];
 
