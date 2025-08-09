@@ -68,6 +68,12 @@ const initialUsers = [
     role: 'Viewer',
     initials: 'MJ',
   },
+  {
+    name: 'Sarah Lee',
+    email: 'sarah.lee@example.com',
+    role: 'Tribe Leader',
+    initials: 'SL',
+  }
 ];
 
 type User = {
@@ -972,6 +978,7 @@ export default function AdminSettingsPage() {
                     <SelectItem value="Admin">Admin</SelectItem>
                     <SelectItem value="Editor">Editor</SelectItem>
                     <SelectItem value="Viewer">Viewer</SelectItem>
+                    <SelectItem value="Tribe Leader">Tribe Leader</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
