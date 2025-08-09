@@ -46,8 +46,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck } from 'lucide-react';
+import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck, AreaChart, BarChart, LineChart } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { Bar, XAxis, YAxis, CartesianGrid, BarChart as RechartsBarChart } from 'recharts';
+
 
 const initialUsers = [
   {
@@ -259,8 +262,25 @@ Contact Us
 If you have questions or comments about this Privacy Policy, please contact us at: contact@rendezvous.church
 `.trim();
 
+const givingData = [
+    { date: 'Jan', total: 4500, general: 3000, missions: 1000, building: 500 },
+    { date: 'Feb', total: 4800, general: 3200, missions: 1100, building: 500 },
+    { date: 'Mar', total: 5200, general: 3400, missions: 1200, building: 600 },
+    { date: 'Apr', total: 4900, general: 3300, missions: 1000, building: 600 },
+    { date: 'May', total: 5500, general: 3600, missions: 1300, building: 600 },
+    { date: 'Jun', total: 5800, general: 3800, missions: 1400, building: 600 },
+    { date: 'Jul', total: 6100, general: 4000, missions: 1500, building: 600 },
+];
+const chartConfig = {
+    total: { label: 'Total Giving', color: 'hsl(var(--chart-1))' },
+    general: { label: 'General Fund', color: 'hsl(var(--chart-2))' },
+    missions: { label: 'Missions Fund', color: 'hsl(var(--chart-3))' },
+    building: { label: 'Building Fund', color: 'hsl(var(--chart-4))' },
+} satisfies Record<string, any>;
+
 
 export default function AdminSettingsPage() {
+  const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'Tribe Leader'>('Admin');
   const [users, setUsers] = useState(initialUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
@@ -461,12 +481,27 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center md:text-left">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Admin Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your application's configuration and content.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="text-center md:text-left">
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Admin Settings</h1>
+          <p className="text-muted-foreground">
+            Manage your application's configuration and content.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 self-center md:self-auto">
+            <Label htmlFor="role-switcher">Viewing as:</Label>
+            <Select value={currentUserRole} onValueChange={(value: 'Admin' | 'Tribe Leader') => setCurrentUserRole(value)}>
+                <SelectTrigger id="role-switcher" className="w-[180px]">
+                    <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Tribe Leader">Tribe Leader</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
       </div>
+
 
       <Tabs defaultValue="navigation" className="space-y-4">
         <TabsList className="flex-wrap h-auto">
@@ -479,7 +514,8 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="groups">Groups</TabsTrigger>
           <TabsTrigger value="giving">Giving</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
-          <TabsTrigger value="legal">Legal</TabsTrigger>
+          {currentUserRole === 'Admin' && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
+          {currentUserRole === 'Admin' && <TabsTrigger value="legal">Legal</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="general">
@@ -880,6 +916,54 @@ export default function AdminSettingsPage() {
                         ))}
                         </TableBody>
                     </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Giving Analytics</CardTitle>
+                    <CardDescription>
+                        An overview of your church's financial support.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    <Card>
+                         <CardHeader>
+                            <CardTitle>Total Giving Over Time</CardTitle>
+                         </CardHeader>
+                         <CardContent>
+                             <ChartContainer config={chartConfig} className="w-full h-[300px]">
+                                <RechartsBarChart data={givingData} accessibilityLayer>
+                                    <CartesianGrid vertical={false} />
+                                    <XAxis dataKey="date" tickLine={false} tickMargin={10} axisLine={false} />
+                                    <YAxis tickFormatter={(value) => `$${value/1000}k`} />
+                                    <ChartTooltip content={<ChartTooltipContent />} />
+                                    <ChartLegend content={<ChartLegendContent />} />
+                                    <Bar dataKey="total" fill="var(--color-total)" radius={4} />
+                                </RechartsBarChart>
+                             </ChartContainer>
+                         </CardContent>
+                    </Card>
+                     <Card>
+                         <CardHeader>
+                            <CardTitle>Giving by Fund</CardTitle>
+                         </CardHeader>
+                         <CardContent>
+                             <ChartContainer config={chartConfig} className="w-full h-[300px]">
+                                <RechartsBarChart data={givingData} layout="vertical" stackOffset="expand">
+                                    <XAxis type="number" hide />
+                                    <YAxis dataKey="date" type="category" tickLine={false} tickMargin={10} axisLine={false} />
+                                    <ChartTooltip content={<ChartTooltipContent />} />
+                                    <ChartLegend content={<ChartLegendContent />} />
+                                    <Bar dataKey="general" fill="var(--color-general)" stackId="a" radius={[4, 0, 0, 4]} />
+                                    <Bar dataKey="missions" fill="var(--color-missions)" stackId="a" />
+                                    <Bar dataKey="building" fill="var(--color-building)" stackId="a" radius={[0, 4, 4, 0]}/>
+                                </RechartsBarChart>
+                             </ChartContainer>
+                         </CardContent>
+                    </Card>
                 </CardContent>
             </Card>
         </TabsContent>
