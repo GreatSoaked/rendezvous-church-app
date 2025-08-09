@@ -7,8 +7,8 @@ import { Logo } from '@/components/logo';
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarInset } from '@/components/ui/sidebar';
 
 export const metadata: Metadata = {
-  title: 'ConnectPoint',
-  description: 'Your central hub for church community and engagement.',
+  title: 'Rendezvous Church',
+  description: 'Your central hub for the Rendezvous Church community and engagement.',
 };
 
 export default function RootLayout({

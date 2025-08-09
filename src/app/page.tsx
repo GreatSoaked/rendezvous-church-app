@@ -79,7 +79,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to ConnectPoint</h1>
+        <h1 className="text-3xl font-bold tracking-tight font-headline">Welcome to Rendezvous Church</h1>
         <p className="text-muted-foreground">Your central hub for church community and engagement.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
