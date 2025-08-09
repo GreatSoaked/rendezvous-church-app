@@ -1,3 +1,6 @@
+
+"use client";
+
 import Image from 'next/image';
 import {
   Card,
@@ -7,9 +10,21 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, Wifi } from 'lucide-react';
+import { PlayCircle, Wifi, PlusCircle } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-const pastSermons = [
+const initialSermons = [
   {
     title: 'The Foundation of Faith',
     speaker: 'Pastor John Smith',
@@ -44,7 +59,47 @@ const pastSermons = [
   },
 ];
 
+type Sermon = {
+  title: string;
+  speaker: string;
+  date: string;
+  series: string;
+  imageUrl: string;
+  dataAiHint: string;
+};
+
 export default function SermonsPage() {
+  const [sermons, setSermons] = useState<Sermon[]>(initialSermons);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newSermon, setNewSermon] = useState({
+      title: '',
+      speaker: '',
+      date: '',
+      series: '',
+      imageUrl: 'https://placehold.co/600x400.png',
+      dataAiHint: 'sermon church'
+  });
+
+  const handleAddSermon = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, you would handle file upload to a server/storage
+    // and get back a URL. We'll use a placeholder.
+    const sermonToAdd = {
+        ...newSermon,
+        imageUrl: newSermon.imageUrl || 'https://placehold.co/600x400.png'
+    }
+    setSermons(prevSermons => [sermonToAdd, ...prevSermons]);
+    setIsDialogOpen(false);
+    setNewSermon({
+        title: '',
+        speaker: '',
+        date: '',
+        series: '',
+        imageUrl: 'https://placehold.co/600x400.png',
+        dataAiHint: 'sermon church'
+    });
+  };
+  
   return (
     <div className="space-y-12">
       <div className="text-center">
@@ -80,9 +135,64 @@ export default function SermonsPage() {
       </Card>
       
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline mb-4">Past Recordings</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold tracking-tight font-headline">Past Recordings</h2>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Sermon
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add a New Sermon</DialogTitle>
+                <DialogDescription>
+                  Fill out the details below to add a new sermon to the archive.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleAddSermon}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="title" className="text-right">
+                      Title
+                    </Label>
+                    <Input id="title" value={newSermon.title} onChange={(e) => setNewSermon({...newSermon, title: e.target.value})} className="col-span-3" required />
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="speaker" className="text-right">
+                      Speaker
+                    </Label>
+                    <Input id="speaker" value={newSermon.speaker} onChange={(e) => setNewSermon({...newSermon, speaker: e.target.value})} className="col-span-3" required/>
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="date" className="text-right">
+                      Date
+                    </Label>
+                    <Input id="date" type="date" value={newSermon.date} onChange={(e) => setNewSermon({...newSermon, date: e.target.value})} className="col-span-3" required/>
+                  </div>
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="series" className="text-right">
+                      Series
+                    </Label>
+                    <Input id="series" value={newSermon.series} onChange={(e) => setNewSermon({...newSermon, series: e.target.value})} className="col-span-3" />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="media" className="text-right">
+                      Photo/Video
+                    </Label>
+                    <Input id="media" type="file" className="col-span-3" accept="image/*,video/*" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                  <Button type="submit">Add Sermon</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {pastSermons.map((sermon) => (
+          {sermons.map((sermon) => (
             <Card key={sermon.title} className="flex flex-col">
               <CardContent className="p-0">
                 <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
