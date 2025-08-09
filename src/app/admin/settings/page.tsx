@@ -183,6 +183,25 @@ const initialGroups = [
 ];
 type Group = typeof initialGroups[0];
 
+const initialGivingLinks = [
+  {
+    title: 'General Fund',
+    description: 'Support the day-to-day ministry and operations of the church.',
+    href: '#',
+  },
+  {
+    title: 'Missions Fund',
+    description: 'Help us support local and global missionary partners.',
+    href: '#',
+  },
+  {
+    title: 'Building Fund',
+    description: 'Contribute to our future home and building projects.',
+    href: '#',
+  },
+];
+type GivingLink = typeof initialGivingLinks[0];
+
 const initialTermsContent = `
 Last updated: August 12, 2024
 
@@ -256,6 +275,10 @@ export default function AdminSettingsPage() {
   const [groups, setGroups] = useState(initialGroups);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+
+  const [givingLinks, setGivingLinks] = useState(initialGivingLinks);
+  const [editingGivingLink, setEditingGivingLink] = useState<GivingLink | null>(null);
+  const [isGivingLinkDialogOpen, setIsGivingLinkDialogOpen] = useState(false);
   
   const [termsContent, setTermsContent] = useState(initialTermsContent);
   const [privacyContent, setPrivacyContent] = useState(initialPrivacyContent);
@@ -382,6 +405,33 @@ export default function AdminSettingsPage() {
       setIsGroupDialogOpen(true);
   }
 
+    const handleEditGivingLinkClick = (link: GivingLink) => {
+        setEditingGivingLink({ ...link, originalTitle: link.title });
+        setIsGivingLinkDialogOpen(true);
+    };
+
+    const handleSaveGivingLinkChanges = () => {
+        if (editingGivingLink) {
+            const isNew = !givingLinks.some(g => g.title === (editingGivingLink as any).originalTitle);
+            if (isNew) {
+                setGivingLinks([...givingLinks, editingGivingLink]);
+            } else {
+                setGivingLinks(givingLinks.map(g => g.title === (editingGivingLink as any).originalTitle ? editingGivingLink : g));
+            }
+        }
+        setIsGivingLinkDialogOpen(false);
+        setEditingGivingLink(null);
+    }
+
+    const handleDeleteGivingLink = (title: string) => {
+        setGivingLinks(givingLinks.filter(g => g.title !== title));
+    }
+
+    const handleAddNewGivingLink = () => {
+        setEditingGivingLink({ title: '', description: '', href: ''});
+        setIsGivingLinkDialogOpen(true);
+    }
+
 
   const moveNavItem = (index: number, direction: 'up' | 'down') => {
     const newNavItems = [...navItems];
@@ -421,6 +471,7 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="sermons">Sermons</TabsTrigger>
           <TabsTrigger value="groups">Groups</TabsTrigger>
+          <TabsTrigger value="giving">Giving</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           <TabsTrigger value="legal">Legal</TabsTrigger>
         </TabsList>
@@ -724,6 +775,57 @@ export default function AdminSettingsPage() {
             </Card>
         </TabsContent>
 
+        <TabsContent value="giving">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Giving Links</CardTitle>
+                            <CardDescription>
+                                Add, edit, or remove links from the Giving page.
+                            </CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewGivingLink}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Giving Link
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {givingLinks.map((link) => (
+                            <TableRow key={link.title}>
+                            <TableCell>
+                                <p className="font-medium">{link.title}</p>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground truncate max-w-xs">{link.description}</TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" asChild>
+                                    <a href={link.href} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4" /></a>
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditGivingLinkClick(link)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteGivingLink(link.title)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
         <TabsContent value="resources">
             <Card>
                 <CardHeader>
@@ -979,8 +1081,25 @@ export default function AdminSettingsPage() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+    <Dialog open={isGivingLinkDialogOpen} onOpenChange={setIsGivingLinkDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingGivingLink && givingLinks.some(g => g.title === editingGivingLink.title) ? 'Edit Giving Link' : 'Add New Giving Link'}</DialogTitle>
+            </DialogHeader>
+            {editingGivingLink && (
+            <div className="grid gap-4 py-4">
+                <Input placeholder="Title" value={editingGivingLink.title} onChange={(e) => setEditingGivingLink({ ...editingGivingLink, title: e.target.value, originalTitle: editingGivingLink.title })} />
+                <Textarea placeholder="Description" value={editingGivingLink.description} onChange={(e) => setEditingGivingLink({ ...editingGivingLink, description: e.target.value })} />
+                <Input placeholder="URL" value={editingGivingLink.href} onChange={(e) => setEditingGivingLink({ ...editingGivingLink, href: e.target.value })} />
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsGivingLinkDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveGivingLinkChanges}>Save Link</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-    
