@@ -15,6 +15,7 @@ import {
   Mail,
   MessageSquare,
   UserPlus,
+  Link as LinkIcon,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -32,6 +33,7 @@ const navItems = [
   { href: "/giving", label: "Giving", icon: HandHelping },
   { href: "/prayer", label: "Prayer Requests", icon: HeartHandshake },
   { href: "/groups", label: "Groups", icon: Users },
+  { href: "/connect", label: "Connect", icon: LinkIcon },
   { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
   { href: "/welcome", label: "Welcome Tool", icon: Sparkles },

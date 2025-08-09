@@ -46,10 +46,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck, AreaChart, BarChart, LineChart } from 'lucide-react';
+import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck, AreaChart, BarChart, LineChart, Link as LinkIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { Bar, XAxis, YAxis, CartesianGrid, BarChart as RechartsBarChart } from 'recharts';
+import Image from 'next/image';
 
 
 const initialUsers = [
@@ -93,6 +94,7 @@ const initialNavItemsData = [
     { href: "/giving", label: "Giving", icon: HandHelping, visible: true },
     { href: "/prayer", label: "Prayer Requests", icon: HeartHandshake, visible: true },
     { href: "/groups", label: "Groups", icon: Users, visible: true },
+    { href: "/connect", label: "Connect", icon: LinkIcon, visible: true },
     { href: "/resources", label: "Resources", icon: BookOpen, visible: true },
     { href: "/check-in", label: "Pre-Check-In", icon: LogIn, visible: true },
     { href: "/welcome", label: "Welcome Tool", icon: Sparkles, visible: true },
@@ -218,6 +220,28 @@ const initialGivingLinks = [
 ];
 type GivingLink = typeof initialGivingLinks[0];
 
+const initialConnectLinks = [
+    {
+        title: 'Join a Group',
+        href: '/groups',
+        imageUrl: 'https://placehold.co/600x400.png',
+        dataAiHint: 'community group',
+    },
+    {
+        title: 'Volunteer With Us',
+        href: '#',
+        imageUrl: 'https://placehold.co/600x400.png',
+        dataAiHint: 'volunteering hands',
+    },
+    {
+        title: 'New to Rendezvous?',
+        href: '#',
+        imageUrl: 'https://placehold.co/600x400.png',
+        dataAiHint: 'welcome sign',
+    }
+];
+type ConnectLink = typeof initialConnectLinks[0];
+
 const initialTermsContent = `
 Last updated: August 12, 2024
 
@@ -314,6 +338,10 @@ export default function AdminSettingsPage() {
   const [givingLinks, setGivingLinks] = useState(initialGivingLinks);
   const [editingGivingLink, setEditingGivingLink] = useState<GivingLink | null>(null);
   const [isGivingLinkDialogOpen, setIsGivingLinkDialogOpen] = useState(false);
+  
+  const [connectLinks, setConnectLinks] = useState(initialConnectLinks);
+  const [editingConnectLink, setEditingConnectLink] = useState<ConnectLink | null>(null);
+  const [isConnectLinkDialogOpen, setIsConnectLinkDialogOpen] = useState(false);
   
   const [termsContent, setTermsContent] = useState(initialTermsContent);
   const [privacyContent, setPrivacyContent] = useState(initialPrivacyContent);
@@ -479,6 +507,33 @@ export default function AdminSettingsPage() {
         setEditingGivingLink({ title: '', description: '', href: ''});
         setIsGivingLinkDialogOpen(true);
     }
+    
+    const handleEditConnectLinkClick = (link: ConnectLink) => {
+        setEditingConnectLink({ ...link, originalTitle: link.title });
+        setIsConnectLinkDialogOpen(true);
+    };
+
+    const handleSaveConnectLinkChanges = () => {
+        if (editingConnectLink) {
+            const isNew = !connectLinks.some(g => g.title === (editingConnectLink as any).originalTitle);
+            if (isNew) {
+                setConnectLinks([...connectLinks, {...editingConnectLink, imageUrl: 'https://placehold.co/600x400.png', dataAiHint: 'custom link'}]);
+            } else {
+                setConnectLinks(connectLinks.map(g => g.title === (editingConnectLink as any).originalTitle ? editingConnectLink : g));
+            }
+        }
+        setIsConnectLinkDialogOpen(false);
+        setEditingConnectLink(null);
+    }
+
+    const handleDeleteConnectLink = (title: string) => {
+        setConnectLinks(connectLinks.filter(g => g.title !== title));
+    }
+
+    const handleAddNewConnectLink = () => {
+        setEditingConnectLink({ title: '', href: '', imageUrl: '', dataAiHint: '' });
+        setIsConnectLinkDialogOpen(true);
+    }
 
 
   const moveNavItem = (index: number, direction: 'up' | 'down') => {
@@ -525,7 +580,7 @@ export default function AdminSettingsPage() {
       </div>
 
 
-      <Tabs defaultValue="navigation" className="space-y-4">
+      <Tabs defaultValue="connect" className="space-y-4">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -535,6 +590,7 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="sermons">Sermons</TabsTrigger>
           <TabsTrigger value="groups">Groups</TabsTrigger>
           <TabsTrigger value="giving">Giving</TabsTrigger>
+          <TabsTrigger value="connect">Connect</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
           {currentUserRole === 'Admin' && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
           {currentUserRole === 'Admin' && <TabsTrigger value="legal">Legal</TabsTrigger>}
@@ -901,6 +957,59 @@ export default function AdminSettingsPage() {
                 </CardContent>
             </Card>
         </TabsContent>
+        
+        <TabsContent value="connect">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Connect Links</CardTitle>
+                            <CardDescription>
+                                Add, edit, or remove links from the Connect page.
+                            </CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewConnectLink}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Connect Link
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>URL</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {connectLinks.map((link) => (
+                            <TableRow key={link.title}>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <Image src={link.imageUrl} alt={link.title} width={40} height={40} className="rounded-md object-cover" />
+                                        <p className="font-medium">{link.title}</p>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground truncate max-w-xs">
+                                    <a href={link.href} target="_blank" rel="noopener noreferrer" className="hover:underline">{link.href}</a>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditConnectLinkClick(link)}>
+                                        <Pencil className="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteConnectLink(link.title)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
 
         <TabsContent value="resources">
             <Card>
@@ -1234,6 +1343,34 @@ export default function AdminSettingsPage() {
             <DialogFooter>
                 <Button variant="outline" onClick={() => setIsGivingLinkDialogOpen(false)}>Cancel</Button>
                 <Button onClick={handleSaveGivingLinkChanges}>Save Link</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isConnectLinkDialogOpen} onOpenChange={setIsConnectLinkDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingConnectLink && connectLinks.some(g => g.title === editingConnectLink.title) ? 'Edit Connect Link' : 'Add New Connect Link'}</DialogTitle>
+            </DialogHeader>
+            {editingConnectLink && (
+            <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="connect-title">Title</Label>
+                    <Input id="connect-title" placeholder="e.g., Join a Group" value={editingConnectLink.title} onChange={(e) => setEditingConnectLink({ ...editingConnectLink, title: e.target.value, originalTitle: editingConnectLink.title })} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="connect-href">URL</Label>
+                    <Input id="connect-href" placeholder="/groups" value={editingConnectLink.href} onChange={(e) => setEditingConnectLink({ ...editingConnectLink, href: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="connect-image">Image</Label>
+                    <Input id="connect-image" type="file" />
+                </div>
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsConnectLinkDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveConnectLinkChanges}>Save Link</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
