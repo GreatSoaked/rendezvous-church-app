@@ -140,24 +140,6 @@ type Resource = {
   category: string;
 };
 
-const initialEvents = [
-  {
-    title: 'Sunday Morning Worship',
-    date: 'Every Sunday',
-    time: '10:00 AM - 11:30 AM',
-    location: 'Main Sanctuary',
-    description: 'Join us for a time of worship, teaching, and fellowship.',
-  },
-  {
-    title: 'Youth Group Night',
-    date: 'Every Wednesday',
-    time: '7:00 PM - 8:30 PM',
-    location: 'Youth Hall',
-    description: 'A fun and engaging night for students from 6th to 12th grade.',
-  },
-];
-type Event = typeof initialEvents[0];
-
 const initialSermons = [
   {
     title: 'The Foundation of Faith',
@@ -321,10 +303,6 @@ export default function AdminSettingsPage() {
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [isResourceDialogOpen, setIsResourceDialogOpen] = useState(false);
   const [resourceFilter, setResourceFilter] = useState('All');
-
-  const [events, setEvents] = useState(initialEvents);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
   
   const [sermons, setSermons] = useState(initialSermons);
   const [editingSermon, setEditingSermon] = useState<Sermon | null>(null);
@@ -398,33 +376,6 @@ export default function AdminSettingsPage() {
   const handleAddNewResource = () => {
       setEditingResource({ title: '', description: '', href: '', category: ''});
       setIsResourceDialogOpen(true);
-  }
-
-  const handleEditEventClick = (event: Event) => {
-    setEditingEvent({ ...event, originalTitle: event.title });
-    setIsEventDialogOpen(true);
-  };
-  
-  const handleSaveEventChanges = () => {
-    if (editingEvent) {
-        const isNew = !events.some(e => e.title === (editingEvent as any).originalTitle);
-        if (isNew) {
-            setEvents([...events, editingEvent]);
-        } else {
-             setEvents(events.map(e => e.title === (editingEvent as any).originalTitle ? editingEvent : e));
-        }
-    }
-    setIsEventDialogOpen(false);
-    setEditingEvent(null);
-  }
-
-  const handleDeleteEvent = (title: string) => {
-      setEvents(events.filter(e => e.title !== title));
-  }
-
-  const handleAddNewEvent = () => {
-      setEditingEvent({ title: '', date: '', time: '', location: '', description: ''});
-      setIsEventDialogOpen(true);
   }
 
   const handleEditSermonClick = (sermon: Sermon) => {
@@ -586,7 +537,6 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="sermons">Sermons</TabsTrigger>
           <TabsTrigger value="groups">Groups</TabsTrigger>
           <TabsTrigger value="giving">Giving</TabsTrigger>
@@ -742,57 +692,6 @@ export default function AdminSettingsPage() {
               </Table>
             </CardContent>
           </Card>
-        </TabsContent>
-        
-        <TabsContent value="events">
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>Events</CardTitle>
-                            <CardDescription>
-                                Add, edit, or remove events from the Events page.
-                            </CardDescription>
-                        </div>
-                        <Button onClick={handleAddNewEvent}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add Event
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Date & Time</TableHead>
-                            <TableHead>Location</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {events.map((event) => (
-                            <TableRow key={event.title}>
-                            <TableCell>
-                                <p className="font-medium">{event.title}</p>
-                                <p className="text-sm text-muted-foreground truncate max-w-xs">{event.description}</p>
-                            </TableCell>
-                             <TableCell>{event.date} at {event.time}</TableCell>
-                            <TableCell>{event.location}</TableCell>
-                            <TableCell className="text-right">
-                                <Button variant="ghost" size="icon" onClick={() => handleEditEventClick(event)}>
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteEvent(event.title)}>
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
         </TabsContent>
 
         <TabsContent value="sermons">
@@ -1264,27 +1163,6 @@ export default function AdminSettingsPage() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
-
-    <Dialog open={isEventDialogOpen} onOpenChange={setIsEventDialogOpen}>
-        <DialogContent>
-            <DialogHeader>
-            <DialogTitle>{editingEvent && events.some(e => e.title === editingEvent.title) ? 'Edit Event' : 'Add New Event'}</DialogTitle>
-            </DialogHeader>
-            {editingEvent && (
-            <div className="grid gap-4 py-4">
-                <Input placeholder="Title" value={editingEvent.title} onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value, originalTitle: editingEvent.title })} />
-                <Textarea placeholder="Description" value={editingEvent.description} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} />
-                <Input placeholder="Date" value={editingEvent.date} onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })} />
-                <Input placeholder="Time" value={editingEvent.time} onChange={(e) => setEditingEvent({ ...editingEvent, time: e.target.value })} />
-                <Input placeholder="Location" value={editingEvent.location} onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })} />
-            </div>
-            )}
-            <DialogFooter>
-                <Button variant="outline" onClick={() => setIsEventDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleSaveEventChanges}>Save Event</Button>
-            </DialogFooter>
-        </DialogContent>
-      </Dialog>
       
       <Dialog open={isSermonDialogOpen} onOpenChange={setIsSermonDialogOpen}>
         <DialogContent>
@@ -1377,3 +1255,5 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
+    
