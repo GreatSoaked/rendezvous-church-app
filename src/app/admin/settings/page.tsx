@@ -920,7 +920,7 @@ export default function AdminSettingsPage() {
             </Card>
         </TabsContent>
 
-        <TabsContent value="analytics">
+        {currentUserRole === 'Admin' && <TabsContent value="analytics">
             <Card>
                 <CardHeader>
                     <CardTitle>Giving Analytics</CardTitle>
@@ -966,9 +966,9 @@ export default function AdminSettingsPage() {
                     </Card>
                 </CardContent>
             </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="legal">
+        {currentUserRole === 'Admin' && <TabsContent value="legal">
             <Card>
                 <CardHeader>
                     <CardTitle>Legal Documents</CardTitle>
@@ -1000,7 +1000,7 @@ export default function AdminSettingsPage() {
                     <Button>Save Legal Content</Button>
                 </CardFooter>
             </Card>
-        </TabsContent>
+        </TabsContent>}
       </Tabs>
 
       <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
