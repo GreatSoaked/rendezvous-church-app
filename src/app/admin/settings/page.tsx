@@ -46,7 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink } from 'lucide-react';
+import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 const initialUsers = [
@@ -183,6 +183,58 @@ const initialGroups = [
 ];
 type Group = typeof initialGroups[0];
 
+const initialTermsContent = `
+Last updated: August 12, 2024
+
+Agreement to Terms
+These Terms and Conditions constitute a legally binding agreement made between you and Rendezvous Church concerning your access to and use of the application.
+
+1. User Accounts
+When you create an account with us, you must provide us with information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.
+
+2. User Conduct
+You agree not to use the Service to post or otherwise transmit any content that is unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, or otherwise objectionable.
+
+3. Intellectual Property
+The Service and its original content, features, and functionality are and will remain the exclusive property of Rendezvous Church and its licensors.
+
+4. Termination
+We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.
+
+5. Governing Law
+These Terms shall be governed and construed in accordance with the laws of the land, without regard to its conflict of law provisions.
+
+Contact Us
+If you have any questions about these Terms, please contact us at: contact@rendezvous.church
+`.trim();
+
+const initialPrivacyContent = `
+Last updated: August 12, 2024
+
+Introduction
+Your privacy is important to us. This Privacy Policy explains how Rendezvous Church ("we," "us," or "our") collects, uses, discloses, and safeguards your information when you use our application.
+
+Information We Collect
+We may collect information about you in a variety of ways. The information we may collect on the App includes:
+- Personal Data: Personally identifiable information, such as your name, email address, and demographic information, that you voluntarily give to us when you register with the App.
+- Usage Data: Information our servers automatically collect when you access the App, such as your IP address, your browser type, your operating system, your access times, and the pages you have viewed directly before and after accessing the App.
+
+Use of Your Information
+Having accurate information about you permits us to provide you with a smooth, efficient, and customized experience. Specifically, we may use information collected about you via the App to:
+- Create and manage your account.
+- Email you regarding your account or order.
+- Enable user-to-user communications.
+- Monitor and analyze usage and trends to improve your experience with the App.
+- Notify you of updates to the App.
+
+Security of Your Information
+We use administrative, technical, and physical security measures to help protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that despite our efforts, no security measures are perfect or impenetrable, and no method of data transmission can be guaranteed against any interception or other type of misuse.
+
+Contact Us
+If you have questions or comments about this Privacy Policy, please contact us at: contact@rendezvous.church
+`.trim();
+
+
 export default function AdminSettingsPage() {
   const [users, setUsers] = useState(initialUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -204,6 +256,9 @@ export default function AdminSettingsPage() {
   const [groups, setGroups] = useState(initialGroups);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  
+  const [termsContent, setTermsContent] = useState(initialTermsContent);
+  const [privacyContent, setPrivacyContent] = useState(initialPrivacyContent);
 
   
   const handleEditUserClick = (user: User) => {
@@ -367,6 +422,7 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="sermons">Sermons</TabsTrigger>
           <TabsTrigger value="groups">Groups</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
+          <TabsTrigger value="legal">Legal</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -719,6 +775,40 @@ export default function AdminSettingsPage() {
                 </CardContent>
             </Card>
         </TabsContent>
+
+        <TabsContent value="legal">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Legal Documents</CardTitle>
+                    <CardDescription>
+                        Edit the content for your Terms of Service and Privacy Policy pages.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="terms-content">Terms of Service</Label>
+                        <Textarea 
+                            id="terms-content" 
+                            className="min-h-[300px] font-mono text-xs"
+                            value={termsContent}
+                            onChange={(e) => setTermsContent(e.target.value)}
+                        />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="privacy-content">Privacy Policy</Label>
+                        <Textarea 
+                            id="privacy-content" 
+                            className="min-h-[300px] font-mono text-xs"
+                            value={privacyContent}
+                            onChange={(e) => setPrivacyContent(e.target.value)}
+                        />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button>Save Legal Content</Button>
+                </CardFooter>
+            </Card>
+        </TabsContent>
       </Tabs>
 
       <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
@@ -892,3 +982,5 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
+    
