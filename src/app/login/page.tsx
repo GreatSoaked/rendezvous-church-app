@@ -47,6 +47,17 @@ export default function LoginPage() {
           </form>
         </CardContent>
       </Card>
+       <div className="mt-4 px-8 text-center text-sm text-muted-foreground">
+        By continuing, you agree to our{' '}
+        <Link href="/terms" className="underline hover:text-primary">
+          Terms of Service
+        </Link>{' '}
+        and{' '}
+        <Link href="/privacy" className="underline hover:text-primary">
+          Privacy Policy
+        </Link>
+        .
+      </div>
        <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="underline">
