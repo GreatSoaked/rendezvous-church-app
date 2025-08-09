@@ -84,7 +84,7 @@ export default function SermonsPage() {
   const [editingSermon, setEditingSermon] = useState<Sermon | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>('Viewer');
 
-  const canEdit = ['Admin', 'Tribe Leader', 'Editor'].includes(currentUserRole);
+  const canEdit = ['Admin', 'Editor'].includes(currentUserRole);
 
   const handleSaveSermon = (e: React.FormEvent) => {
     e.preventDefault();
