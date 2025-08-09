@@ -24,9 +24,14 @@ export default function Icon() {
       >
         <circle cx="12" cy="12" r="11" fill="black" stroke="none" />
         <path
-          d="M7 20v-8l5-4 5 4v8"
+          d="M7 11.5L12 7.5L17 11.5"
           stroke="white"
-          strokeWidth="1.5"
+          strokeWidth="2"
+        />
+        <path
+          d="M8 17V12H12"
+          stroke="white"
+          strokeWidth="2"
         />
         <path
           d="M12 7.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
