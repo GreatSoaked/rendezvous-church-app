@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -189,6 +189,13 @@ const initialGroups = [
     category: 'Bible Study',
     material: 'The Pursuit of Holiness',
   },
+  {
+    name: 'Worship Team',
+    schedule: 'Thursdays at 6:30 PM',
+    leader: 'Sarah Lee',
+    category: 'Ministry Team',
+    material: 'Weekly Song Set',
+  },
 ];
 type Group = typeof initialGroups[0];
 
@@ -289,6 +296,7 @@ export default function AdminSettingsPage() {
   const [resources, setResources] = useState(initialResources);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [isResourceDialogOpen, setIsResourceDialogOpen] = useState(false);
+  const [resourceFilter, setResourceFilter] = useState('All');
 
   const [events, setEvents] = useState(initialEvents);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -301,6 +309,7 @@ export default function AdminSettingsPage() {
   const [groups, setGroups] = useState(initialGroups);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [groupFilter, setGroupFilter] = useState('All');
 
   const [givingLinks, setGivingLinks] = useState(initialGivingLinks);
   const [editingGivingLink, setEditingGivingLink] = useState<GivingLink | null>(null);
@@ -308,6 +317,19 @@ export default function AdminSettingsPage() {
   
   const [termsContent, setTermsContent] = useState(initialTermsContent);
   const [privacyContent, setPrivacyContent] = useState(initialPrivacyContent);
+
+  const resourceCategories = useMemo(() => ['All', ...Array.from(new Set(initialResources.map(r => r.category)))], [initialResources]);
+  const groupCategories = useMemo(() => ['All', ...Array.from(new Set(initialGroups.map(g => g.category)))], [initialGroups]);
+
+  const filteredResources = useMemo(() => {
+    if (resourceFilter === 'All') return resources;
+    return resources.filter(r => r.category === resourceFilter);
+  }, [resources, resourceFilter]);
+
+  const filteredGroups = useMemo(() => {
+    if (groupFilter === 'All') return groups;
+    return groups.filter(g => g.category === groupFilter);
+  }, [groups, groupFilter]);
 
   
   const handleEditUserClick = (user: User) => {
@@ -770,17 +792,29 @@ export default function AdminSettingsPage() {
         <TabsContent value="groups">
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                         <div>
                             <CardTitle>Groups</CardTitle>
                             <CardDescription>
                                 Add, edit, or remove groups from the Groups page.
                             </CardDescription>
                         </div>
-                        <Button onClick={handleAddNewGroup}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add Group
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Select value={groupFilter} onValueChange={setGroupFilter}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Filter by category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {groupCategories.map(category => (
+                                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button onClick={handleAddNewGroup}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Group
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -794,7 +828,7 @@ export default function AdminSettingsPage() {
                         </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {groups.map((group) => (
+                        {filteredGroups.map((group) => (
                             <TableRow key={group.name}>
                             <TableCell>
                                 <p className="font-medium">{group.name}</p>
@@ -871,17 +905,29 @@ export default function AdminSettingsPage() {
         <TabsContent value="resources">
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                         <div>
                             <CardTitle>Resource Links</CardTitle>
                             <CardDescription>
                                 Add, edit, or remove links from the Resources page.
                             </CardDescription>
                         </div>
-                        <Button onClick={handleAddNewResource}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add Resource
-                        </Button>
+                         <div className="flex items-center gap-2">
+                            <Select value={resourceFilter} onValueChange={setResourceFilter}>
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Filter by category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {resourceCategories.map(category => (
+                                        <SelectItem key={category} value={category}>{category}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button onClick={handleAddNewResource}>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Resource
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -894,7 +940,7 @@ export default function AdminSettingsPage() {
                         </TableRow>
                         </TableHeader>
                         <TableBody>
-                        {resources.map((resource) => (
+                        {filteredResources.map((resource) => (
                             <TableRow key={resource.title}>
                             <TableCell>
                                 <p className="font-medium">{resource.title}</p>
