@@ -38,8 +38,7 @@ const navItems = [
   { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
   { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
   { href: "/inbox", label: "Inbox", icon: Mail },
-  { href: "/login", label: "Login", icon: KeyRound },
-  { href: "/register", label: "Register", icon: UserPlus },
+  { href: "/login", label: "Login / Register", icon: KeyRound },
 ]
 
 const adminNavItems = [
@@ -56,7 +55,7 @@ export function Nav() {
         <SidebarMenuItem key={item.href}>
           <Link href={item.href}>
             <SidebarMenuButton
-              isActive={pathname === item.href}
+              isActive={pathname === item.href || (item.href === '/login' && pathname === '/register')}
               tooltip={{ children: item.label }}
             >
               <item.icon className="h-5 w-5" />

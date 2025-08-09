@@ -10,6 +10,7 @@ import {
   KeyRound,
   Mail,
   UserPlus,
+  Link as LinkIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -51,6 +52,12 @@ const features = [
     href: '/groups',
     icon: Users,
   },
+   {
+    title: 'Connect',
+    description: 'Take your next step',
+    href: '/connect',
+    icon: LinkIcon,
+  },
   {
     title: 'Resources',
     description: 'Find helpful articles & links',
@@ -76,16 +83,10 @@ const features = [
     icon: Mail,
   },
   {
-    title: 'Login',
-    description: 'Access your account',
+    title: 'Login / Register',
+    description: 'Access or create an account',
     href: '/login',
     icon: KeyRound,
-  },
-  {
-    title: 'Register',
-    description: 'Create a new account',
-    href: '/register',
-    icon: UserPlus,
   },
 ];
 
