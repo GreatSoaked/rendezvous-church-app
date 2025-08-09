@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -28,34 +28,55 @@ type CheckedInPerson = {
   event: string;
 };
 
+const familyMembers = [
+  { id: 'member-1', name: 'John Doe' },
+  { id: 'member-2', name: 'Jane Doe' },
+  { id: 'member-3', name: 'Jimmy Doe' },
+];
+
+const LOCAL_STORAGE_KEY = 'rendezvous-checkin-family';
+
 export default function CheckInPage() {
   const [checkedInPeople, setCheckedInPeople] = useState<CheckedInPerson[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedMembers = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedMembers) {
+      setSelectedMembers(JSON.parse(savedMembers));
+    }
+  }, []);
+  
+  const handleCheckboxChange = (memberId: string, checked: boolean) => {
+    if (checked) {
+        setSelectedMembers(prev => [...prev, memberId]);
+    } else {
+        setSelectedMembers(prev => prev.filter(id => id !== memberId));
+    }
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const eventName = formData.get('event') as string;
     const guestName = formData.get('guest') as string;
-
-    const familyMembers = [
-      { id: 'member-1', name: 'John Doe' },
-      { id: 'member-2', name: 'Jane Doe' },
-      { id: 'member-3', name: 'Jimmy Doe' },
-    ];
-
+    
     const people: CheckedInPerson[] = [];
 
+    const checkedMemberIds: string[] = [];
     familyMembers.forEach(member => {
         if (formData.get(member.id)) {
             people.push({ name: member.name, event: eventName });
+            checkedMemberIds.push(member.id);
         }
     });
 
     if (guestName) {
         people.push({ name: guestName, event: eventName });
     }
-
+    
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(checkedMemberIds));
     setCheckedInPeople(people);
     setIsSubmitted(true);
   };
@@ -104,18 +125,17 @@ export default function CheckInPage() {
 
               <div className="space-y-4">
                   <h3 className="text-sm font-medium text-muted-foreground">Family Members</h3>
-                  <div className="flex items-center space-x-2">
-                      <Checkbox id="member-1" name="member-1" defaultChecked />
-                      <Label htmlFor="member-1">John Doe</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                      <Checkbox id="member-2" name="member-2" defaultChecked />
-                      <Label htmlFor="member-2">Jane Doe</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                      <Checkbox id="member-3" name="member-3" />
-                      <Label htmlFor="member-3">Jimmy Doe</Label>
-                  </div>
+                  {familyMembers.map(member => (
+                    <div className="flex items-center space-x-2" key={member.id}>
+                        <Checkbox 
+                            id={member.id} 
+                            name={member.id} 
+                            checked={selectedMembers.includes(member.id)}
+                            onCheckedChange={(checked) => handleCheckboxChange(member.id, !!checked)}
+                        />
+                        <Label htmlFor={member.id}>{member.name}</Label>
+                    </div>
+                  ))}
               </div>
 
               <div className="space-y-2">
