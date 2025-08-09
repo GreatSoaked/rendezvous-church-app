@@ -1,3 +1,4 @@
+
 "use client"
 import {
   Calendar,
@@ -9,6 +10,7 @@ import {
   Clapperboard,
   LogIn,
   Sparkles,
+  Settings,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -29,6 +31,7 @@ const navItems = [
   { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
   { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 
 export function Nav() {
