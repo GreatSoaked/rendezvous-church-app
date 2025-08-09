@@ -46,7 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck, AreaChart, BarChart, LineChart, Link as LinkIcon } from 'lucide-react';
+import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink, ShieldCheck, AreaChart, BarChart, LineChart, Link as LinkIcon, MapPin, Clock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { Bar, XAxis, YAxis, CartesianGrid, BarChart as RechartsBarChart } from 'recharts';
@@ -224,6 +224,38 @@ const initialConnectLinks = [
 ];
 type ConnectLink = typeof initialConnectLinks[0];
 
+const initialEvents = [
+  {
+    title: 'Sunday Morning Worship',
+    date: 'Every Sunday',
+    time: '10:00 AM - 11:30 AM',
+    location: 'Main Sanctuary',
+    description: 'Join us for a time of worship, teaching, and fellowship.',
+  },
+  {
+    title: 'Youth Group Night',
+    date: 'Every Wednesday',
+    time: '7:00 PM - 8:30 PM',
+    location: 'Youth Hall',
+    description: 'A fun and engaging night for students from 6th to 12th grade.',
+  },
+  {
+    title: 'Community Outreach BBQ',
+    date: '2024-08-17',
+    time: '12:00 PM - 3:00 PM',
+    location: 'Church Lawn',
+    description: 'A free BBQ for our local community. All are welcome!',
+  },
+  {
+    title: 'Women\'s Ministry Breakfast',
+    date: '2024-08-24',
+    time: '9:00 AM - 10:30 AM',
+    location: 'Fellowship Hall',
+    description: 'Connect with other women over a delicious breakfast and devotional.',
+  },
+];
+type Event = typeof initialEvents[0];
+
 const initialTermsContent = `
 Last updated: August 12, 2024
 
@@ -293,7 +325,7 @@ const chartConfig = {
 
 
 export default function AdminSettingsPage() {
-  const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'Tribe Leader'>('Admin');
+  const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'Tribe Leader' | 'Editor' | 'Viewer'>('Admin');
   const [users, setUsers] = useState(initialUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
@@ -320,9 +352,15 @@ export default function AdminSettingsPage() {
   const [connectLinks, setConnectLinks] = useState(initialConnectLinks);
   const [editingConnectLink, setEditingConnectLink] = useState<ConnectLink | null>(null);
   const [isConnectLinkDialogOpen, setIsConnectLinkDialogOpen] = useState(false);
+
+  const [events, setEvents] = useState(initialEvents);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
   
   const [termsContent, setTermsContent] = useState(initialTermsContent);
   const [privacyContent, setPrivacyContent] = useState(initialPrivacyContent);
+  
+  const canEditContent = ['Admin', 'Tribe Leader', 'Editor'].includes(currentUserRole);
 
   const resourceCategories = useMemo(() => ['All', ...Array.from(new Set(initialResources.map(r => r.category)))], [initialResources]);
   const groupCategories = useMemo(() => ['All', ...Array.from(new Set(initialGroups.map(g => g.category)))], [initialGroups]);
@@ -486,6 +524,33 @@ export default function AdminSettingsPage() {
         setIsConnectLinkDialogOpen(true);
     }
 
+    const handleEditEventClick = (event: Event) => {
+        setEditingEvent({ ...event, originalTitle: event.title });
+        setIsEventDialogOpen(true);
+    };
+
+    const handleSaveEventChanges = () => {
+        if (editingEvent) {
+            const isNew = !events.some(e => e.title === (editingEvent as any).originalTitle);
+            if (isNew) {
+                setEvents([editingEvent, ...events]);
+            } else {
+                setEvents(events.map(e => e.title === (editingEvent as any).originalTitle ? editingEvent : e));
+            }
+        }
+        setIsEventDialogOpen(false);
+        setEditingEvent(null);
+    }
+
+    const handleDeleteEvent = (title: string) => {
+        setEvents(events.filter(e => e.title !== title));
+    }
+
+    const handleAddNewEvent = () => {
+        setEditingEvent({ title: '', date: '', time: '', location: '', description: '' });
+        setIsEventDialogOpen(true);
+    }
+
 
   const moveNavItem = (index: number, direction: 'up' | 'down') => {
     const newNavItems = [...navItems];
@@ -518,13 +583,15 @@ export default function AdminSettingsPage() {
         </div>
         <div className="flex items-center gap-2 self-center md:self-auto">
             <Label htmlFor="role-switcher">Viewing as:</Label>
-            <Select value={currentUserRole} onValueChange={(value: 'Admin' | 'Tribe Leader') => setCurrentUserRole(value)}>
+            <Select value={currentUserRole} onValueChange={(value: any) => setCurrentUserRole(value)}>
                 <SelectTrigger id="role-switcher" className="w-[180px]">
                     <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="Admin">Admin</SelectItem>
                     <SelectItem value="Tribe Leader">Tribe Leader</SelectItem>
+                    <SelectItem value="Editor">Editor</SelectItem>
+                    <SelectItem value="Viewer">Viewer</SelectItem>
                 </SelectContent>
             </Select>
         </div>
@@ -536,12 +603,13 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="sermons">Sermons</TabsTrigger>
-          <TabsTrigger value="groups">Groups</TabsTrigger>
-          <TabsTrigger value="giving">Giving</TabsTrigger>
-          <TabsTrigger value="connect">Connect</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
+          {canEditContent && <TabsTrigger value="users">Users</TabsTrigger>}
+          {canEditContent && <TabsTrigger value="events">Events</TabsTrigger>}
+          {canEditContent && <TabsTrigger value="sermons">Sermons</TabsTrigger>}
+          {canEditContent && <TabsTrigger value="groups">Groups</TabsTrigger>}
+          {canEditContent && <TabsTrigger value="giving">Giving</TabsTrigger>}
+          {canEditContent && <TabsTrigger value="connect">Connect</TabsTrigger>}
+          {canEditContent && <TabsTrigger value="resources">Resources</TabsTrigger>}
           {currentUserRole === 'Admin' && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
           {currentUserRole === 'Admin' && <TabsTrigger value="legal">Legal</TabsTrigger>}
         </TabsList>
@@ -648,7 +716,7 @@ export default function AdminSettingsPage() {
         </TabsContent>
 
 
-        <TabsContent value="users">
+        {canEditContent && <TabsContent value="users">
           <Card>
             <CardHeader>
               <CardTitle>User Management</CardTitle>
@@ -692,9 +760,59 @@ export default function AdminSettingsPage() {
               </Table>
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="sermons">
+        {canEditContent && <TabsContent value="events">
+          <Card>
+              <CardHeader>
+                  <div className="flex items-center justify-between">
+                      <div>
+                          <CardTitle>Events</CardTitle>
+                          <CardDescription>
+                              Add, edit, or remove events from the Events page.
+                          </CardDescription>
+                      </div>
+                      <Button onClick={handleAddNewEvent}>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Add Event
+                      </Button>
+                  </div>
+              </CardHeader>
+              <CardContent>
+                  <Table>
+                      <TableHeader>
+                      <TableRow>
+                          <TableHead>Title</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                      {events.map((event) => (
+                          <TableRow key={event.title}>
+                          <TableCell>
+                              <p className="font-medium">{event.title}</p>
+                          </TableCell>
+                          <TableCell>{event.date}</TableCell>
+                           <TableCell>{event.location}</TableCell>
+                          <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditEventClick(event)}>
+                                  <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteEvent(event.title)}>
+                                  <Trash2 className="h-4 w-4" />
+                              </Button>
+                          </TableCell>
+                          </TableRow>
+                      ))}
+                      </TableBody>
+                  </Table>
+              </CardContent>
+          </Card>
+        </TabsContent>}
+
+        {canEditContent && <TabsContent value="sermons">
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -742,9 +860,9 @@ export default function AdminSettingsPage() {
                     </Table>
                 </CardContent>
             </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="groups">
+        {canEditContent && <TabsContent value="groups">
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between gap-4">
@@ -804,9 +922,9 @@ export default function AdminSettingsPage() {
                     </Table>
                 </CardContent>
             </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="giving">
+        {canEditContent && <TabsContent value="giving">
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -855,9 +973,9 @@ export default function AdminSettingsPage() {
                     </Table>
                 </CardContent>
             </Card>
-        </TabsContent>
+        </TabsContent>}
         
-        <TabsContent value="connect">
+        {canEditContent && <TabsContent value="connect">
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -908,9 +1026,9 @@ export default function AdminSettingsPage() {
                     </Table>
                 </CardContent>
             </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="resources">
+        {canEditContent && <TabsContent value="resources">
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between gap-4">
@@ -972,7 +1090,7 @@ export default function AdminSettingsPage() {
                     </Table>
                 </CardContent>
             </Card>
-        </TabsContent>
+        </TabsContent>}
 
         {currentUserRole === 'Admin' && <TabsContent value="analytics">
             <Card>
@@ -1252,8 +1370,27 @@ export default function AdminSettingsPage() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isEventDialogOpen} onOpenChange={setIsEventDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingEvent && events.some(e => e.title === editingEvent.title) ? 'Edit Event' : 'Add New Event'}</DialogTitle>
+            </DialogHeader>
+            {editingEvent && (
+            <div className="grid gap-4 py-4">
+                <Input placeholder="Title" value={editingEvent.title} onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value, originalTitle: editingEvent.title })} />
+                <Textarea placeholder="Description" value={editingEvent.description} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} />
+                <Input type="date" placeholder="Date" value={editingEvent.date} onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })} />
+                <Input type="time" placeholder="Time" value={editingEvent.time} onChange={(e) => setEditingEvent({ ...editingEvent, time: e.target.value })} />
+                <Input placeholder="Location" value={editingEvent.location} onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })} />
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEventDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveEventChanges}>Save Event</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-    

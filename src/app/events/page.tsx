@@ -52,7 +52,7 @@ export default function EventsPage() {
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Upcoming Events</h1>
         <p className="text-muted-foreground">
-          Get involved and connect with our community.
+          Get involved and connect with our community. Event details are managed by admins.
         </p>
       </div>
 
@@ -86,5 +86,3 @@ export default function EventsPage() {
     </div>
   );
 }
-
-    
