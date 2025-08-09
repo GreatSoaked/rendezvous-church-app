@@ -9,6 +9,7 @@ import {
   Sparkles,
   KeyRound,
   Mail,
+  UserPlus,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -79,6 +80,12 @@ const features = [
     description: 'Access your account',
     href: '/login',
     icon: KeyRound,
+  },
+  {
+    title: 'Register',
+    description: 'Create a new account',
+    href: '/register',
+    icon: UserPlus,
   },
 ];
 

@@ -14,6 +14,7 @@ import {
   KeyRound,
   Mail,
   MessageSquare,
+  UserPlus,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -36,6 +37,7 @@ const navItems = [
   { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
   { href: "/inbox", label: "Inbox", icon: Mail },
   { href: "/login", label: "Login", icon: KeyRound },
+  { href: "/register", label: "Register", icon: UserPlus },
 ]
 
 const adminNavItems = [
