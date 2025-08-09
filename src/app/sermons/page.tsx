@@ -23,6 +23,14 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 
 const initialSermons = [
   {
@@ -68,10 +76,15 @@ type Sermon = {
   dataAiHint: string;
 };
 
+type UserRole = 'Admin' | 'Tribe Leader' | 'Editor' | 'Viewer';
+
 export default function SermonsPage() {
   const [sermons, setSermons] = useState<Sermon[]>(initialSermons);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSermon, setEditingSermon] = useState<Sermon | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<UserRole>('Viewer');
+
+  const canEdit = ['Admin', 'Tribe Leader', 'Editor'].includes(currentUserRole);
 
   const handleSaveSermon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +132,28 @@ export default function SermonsPage() {
         </p>
       </div>
 
+       <Card className="max-w-md mx-auto">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <Label htmlFor="role-switcher" className="whitespace-nowrap">Viewing as:</Label>
+            <Select value={currentUserRole} onValueChange={(value: UserRole) => setCurrentUserRole(value)}>
+                <SelectTrigger id="role-switcher" className="w-full">
+                    <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Tribe Leader">Tribe Leader</SelectItem>
+                    <SelectItem value="Editor">Editor</SelectItem>
+                    <SelectItem value="Viewer">Viewer</SelectItem>
+                </SelectContent>
+            </Select>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            This is for demonstration. Admins, Tribe Leaders, and Editors can see editing controls.
+          </p>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
             <div className="flex items-center gap-2">
@@ -147,60 +182,64 @@ export default function SermonsPage() {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold tracking-tight font-headline">Past Recordings</h2>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleAddNewSermon}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Sermon
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingSermon && sermons.some(s => s.title === editingSermon.title) ? 'Edit Sermon' : 'Add New Sermon'}</DialogTitle>
-                <DialogDescription>
-                  Fill out the details below.
-                </DialogDescription>
-              </DialogHeader>
-              {editingSermon && (
-                <form onSubmit={handleSaveSermon}>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="title" className="text-right">Title</Label>
-                      <Input id="title" value={editingSermon.title} onChange={(e) => setEditingSermon({...editingSermon, title: e.target.value})} className="col-span-3" required />
+          {canEdit && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={handleAddNewSermon}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Sermon
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingSermon && sermons.some(s => s.title === editingSermon.title) ? 'Edit Sermon' : 'Add New Sermon'}</DialogTitle>
+                  <DialogDescription>
+                    Fill out the details below.
+                  </DialogDescription>
+                </DialogHeader>
+                {editingSermon && (
+                  <form onSubmit={handleSaveSermon}>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="title" className="text-right">Title</Label>
+                        <Input id="title" value={editingSermon.title} onChange={(e) => setEditingSermon({...editingSermon, title: e.target.value})} className="col-span-3" required />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="speaker" className="text-right">Speaker</Label>
+                        <Input id="speaker" value={editingSermon.speaker} onChange={(e) => setEditingSermon({...editingSermon, speaker: e.target.value})} className="col-span-3" required/>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="date" className="text-right">Date</Label>
+                        <Input id="date" type="date" value={editingSermon.date} onChange={(e) => setEditingSermon({...editingSermon, date: e.target.value})} className="col-span-3" required/>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="series" className="text-right">Series</Label>
+                        <Input id="series" value={editingSermon.series} onChange={(e) => setEditingSermon({...editingSermon, series: e.target.value})} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="media" className="text-right">Photo/Video</Label>
+                        <Input id="media" type="file" className="col-span-3" accept="image/*,video/*" />
+                      </div>
                     </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="speaker" className="text-right">Speaker</Label>
-                      <Input id="speaker" value={editingSermon.speaker} onChange={(e) => setEditingSermon({...editingSermon, speaker: e.target.value})} className="col-span-3" required/>
-                    </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="date" className="text-right">Date</Label>
-                      <Input id="date" type="date" value={editingSermon.date} onChange={(e) => setEditingSermon({...editingSermon, date: e.target.value})} className="col-span-3" required/>
-                    </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="series" className="text-right">Series</Label>
-                      <Input id="series" value={editingSermon.series} onChange={(e) => setEditingSermon({...editingSermon, series: e.target.value})} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="media" className="text-right">Photo/Video</Label>
-                      <Input id="media" type="file" className="col-span-3" accept="image/*,video/*" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                    <Button type="submit">Save</Button>
-                  </DialogFooter>
-                </form>
-              )}
-            </DialogContent>
-          </Dialog>
+                    <DialogFooter>
+                      <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                      <Button type="submit">Save</Button>
+                    </DialogFooter>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {sermons.map((sermon) => (
             <Card key={sermon.title} className="flex flex-col group">
               <CardContent className="p-0 relative">
-                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                    <Button size="icon" variant="secondary" onClick={() => handleEditSermon(sermon)}><Pencil className="h-4 w-4" /></Button>
-                    <Button size="icon" variant="destructive" onClick={() => handleDeleteSermon(sermon.title)}><Trash2 className="h-4 w-4" /></Button>
-                </div>
+                {canEdit && (
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                      <Button size="icon" variant="secondary" onClick={() => handleEditSermon(sermon)}><Pencil className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="destructive" onClick={() => handleDeleteSermon(sermon.title)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                )}
                 <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
                     <Image
                     src={sermon.imageUrl}
