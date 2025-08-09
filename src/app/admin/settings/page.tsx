@@ -1,9 +1,14 @@
+
+"use client";
+
+import { useState } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,8 +30,24 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-const users = [
+const initialUsers = [
   {
     name: 'John Doe',
     email: 'john.doe@example.com',
@@ -47,7 +68,33 @@ const users = [
   },
 ];
 
+type User = {
+  name: string;
+  email: string;
+  role: string;
+  initials: string;
+};
+
 export default function AdminSettingsPage() {
+  const [users, setUsers] = useState(initialUsers);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleEditClick = (user: User) => {
+    setEditingUser(user);
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveChanges = () => {
+    if (editingUser) {
+      // In a real app, you'd save this to a database.
+      // For this prototype, we'll just update the local state.
+      setUsers(users.map(u => u.email === editingUser.email ? editingUser : u));
+    }
+    setIsDialogOpen(false);
+    setEditingUser(null);
+  };
+
   return (
     <div className="space-y-8">
       <div className="text-center md:text-left">
@@ -57,7 +104,7 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="general" className="space-y-4">
+      <Tabs defaultValue="users" className="space-y-4">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -162,7 +209,7 @@ export default function AdminSettingsPage() {
                         <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEditClick(user)}>Edit</Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -172,6 +219,77 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Make changes to the user's profile here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          {editingUser && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Photo
+                </Label>
+                <div className="col-span-3 flex items-center gap-4">
+                    <Avatar>
+                        <AvatarImage src={`https://placehold.co/40x40.png?text=${editingUser.initials}`} />
+                        <AvatarFallback>{editingUser.initials}</AvatarFallback>
+                    </Avatar>
+                    <Input id="photo" type="file" className="text-sm"/>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  value={editingUser.name}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="email" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="role" className="text-right">
+                  Role
+                </Label>
+                <Select
+                  value={editingUser.role}
+                  onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="Editor">Editor</SelectItem>
+                    <SelectItem value="Viewer">Viewer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
