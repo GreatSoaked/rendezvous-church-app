@@ -47,6 +47,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 const initialUsers = [
   {
@@ -76,22 +77,29 @@ type User = {
   initials: string;
 };
 
-const initialNavItems = [
-    { href: "/", label: "Dashboard", icon: Home },
-    { href: "/events", label: "Events", icon: Calendar },
-    { href: "/sermons", label: "Sermons", icon: Clapperboard },
-    { href: "/giving", label: "Giving", icon: HandHelping },
-    { href: "/prayer", label: "Prayer Requests", icon: HeartHandshake },
-    { href: "/groups", label: "Groups", icon: Users },
-    { href: "/resources", label: "Resources", icon: BookOpen },
-    { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
-    { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
-    { href: "/inbox", label: "Inbox", icon: Mail },
-    { href: "/login", label: "Login", icon: KeyRound },
-    { href: "/register", label: "Register", icon: UserPlus },
-    { href: "/admin/messaging", label: "Messaging", icon: MessageSquare },
-    { href: "/admin/settings", label: "Settings", icon: Settings },
+const initialNavItemsData = [
+    { href: "/", label: "Dashboard", icon: Home, visible: true },
+    { href: "/events", label: "Events", icon: Calendar, visible: true },
+    { href: "/sermons", label: "Sermons", icon: Clapperboard, visible: true },
+    { href: "/giving", label: "Giving", icon: HandHelping, visible: true },
+    { href: "/prayer", label: "Prayer Requests", icon: HeartHandshake, visible: true },
+    { href: "/groups", label: "Groups", icon: Users, visible: true },
+    { href: "/resources", label: "Resources", icon: BookOpen, visible: true },
+    { href: "/check-in", label: "Pre-Check-In", icon: LogIn, visible: true },
+    { href: "/welcome", label: "Welcome Tool", icon: Sparkles, visible: true },
+    { href: "/inbox", label: "Inbox", icon: Mail, visible: true },
+    { href: "/login", label: "Login", icon: KeyRound, visible: true },
+    { href: "/register", label: "Register", icon: UserPlus, visible: true },
+    { href: "/admin/messaging", label: "Messaging", icon: MessageSquare, visible: true },
+    { href: "/admin/settings", label: "Settings", icon: Settings, visible: true },
 ];
+
+type NavItem = {
+    href: string;
+    label: string;
+    icon: React.ElementType;
+    visible: boolean;
+}
 
 const initialResources = [
   {
@@ -126,7 +134,7 @@ export default function AdminSettingsPage() {
   const [users, setUsers] = useState(initialUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
-  const [navItems, setNavItems] = useState(initialNavItems);
+  const [navItems, setNavItems] = useState<NavItem[]>(initialNavItemsData);
 
   const [resources, setResources] = useState(initialResources);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
@@ -186,6 +194,12 @@ export default function AdminSettingsPage() {
     newNavItems.splice(swapIndex, 0, item);
     setNavItems(newNavItems);
   };
+  
+  const toggleNavItemVisibility = (index: number) => {
+      const newNavItems = [...navItems];
+      newNavItems[index].visible = !newNavItems[index].visible;
+      setNavItems(newNavItems);
+  }
 
   return (
     <div className="space-y-8">
@@ -196,7 +210,7 @@ export default function AdminSettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
+      <Tabs defaultValue="navigation" className="space-y-4">
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -272,7 +286,7 @@ export default function AdminSettingsPage() {
             <CardHeader>
               <CardTitle>Sidebar Navigation</CardTitle>
               <CardDescription>
-                Drag and drop to reorder the items in the main sidebar.
+                Reorder and toggle visibility of items in the main sidebar.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -283,7 +297,12 @@ export default function AdminSettingsPage() {
                       <item.icon className="h-5 w-5 text-muted-foreground" />
                       <span className="font-medium">{item.label}</span>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={item.visible}
+                        onCheckedChange={() => toggleNavItemVisibility(index)}
+                        aria-label={`Toggle visibility of ${item.label}`}
+                      />
                       <Button variant="ghost" size="icon" onClick={() => moveNavItem(index, 'up')} disabled={index === 0}>
                         <ArrowUp className="h-4 w-4" />
                       </Button>
@@ -296,7 +315,7 @@ export default function AdminSettingsPage() {
               </div>
             </CardContent>
              <CardFooter>
-                <Button>Save Order</Button>
+                <Button>Save Changes</Button>
             </CardFooter>
           </Card>
         </TabsContent>
