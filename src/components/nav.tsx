@@ -12,6 +12,8 @@ import {
   Sparkles,
   Settings,
   KeyRound,
+  Mail,
+  MessageSquare,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -32,8 +34,13 @@ const navItems = [
   { href: "/resources", label: "Resources", icon: BookOpen },
   { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
   { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
+  { href: "/inbox", label: "Inbox", icon: Mail },
   { href: "/login", label: "Login", icon: KeyRound },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+]
+
+const adminNavItems = [
+    { href: "/admin/messaging", label: "Messaging", icon: MessageSquare },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
 ]
 
 export function Nav() {
@@ -52,6 +59,19 @@ export function Nav() {
               <span className="truncate">{item.label}</span>
             </SidebarMenuButton>
           </Link>
+        </SidebarMenuItem>
+      ))}
+      {adminNavItems.map((item) => (
+         <SidebarMenuItem key={item.href}>
+            <Link href={item.href}>
+                <SidebarMenuButton
+                isActive={pathname === item.href}
+                tooltip={{ children: item.label }}
+                >
+                <item.icon className="h-5 w-5" />
+                <span className="truncate">{item.label}</span>
+                </SidebarMenuButton>
+            </Link>
         </SidebarMenuItem>
       ))}
     </SidebarMenu>

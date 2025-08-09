@@ -8,6 +8,7 @@ import {
   LogIn,
   Sparkles,
   KeyRound,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -66,6 +67,12 @@ const features = [
     description: 'Generate welcome messages',
     href: '/welcome',
     icon: Sparkles,
+  },
+  {
+    title: 'Inbox',
+    description: 'View messages from admins',
+    href: '/inbox',
+    icon: Mail,
   },
   {
     title: 'Login',
