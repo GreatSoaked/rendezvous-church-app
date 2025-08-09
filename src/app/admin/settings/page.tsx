@@ -46,7 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings } from 'lucide-react';
+import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings, PlusCircle, Trash2, Pencil, ExternalLink } from 'lucide-react';
 
 const initialUsers = [
   {
@@ -93,24 +93,85 @@ const initialNavItems = [
     { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
+const initialResources = [
+  {
+    title: 'Daily Devotional by Our Daily Bread',
+    description: 'Start your day with a short, inspiring devotional reading.',
+    href: '#',
+    category: 'Devotionals',
+  },
+  {
+    title: 'The Bible Project',
+    description: 'Watch short-form animated videos that walk through the narrative of the Bible.',
+    href: '#',
+    category: 'Bible Study',
+  },
+  {
+    title: 'RightNow Media',
+    description: 'Access a huge library of faith-based videos for all ages (requires church login).',
+    href: '#',
+    category: 'Streaming',
+  },
+];
+
+type Resource = {
+  title: string;
+  description: string;
+  href: string;
+  category: string;
+};
+
+
 export default function AdminSettingsPage() {
   const [users, setUsers] = useState(initialUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [navItems, setNavItems] = useState(initialNavItems);
 
-  const handleEditClick = (user: User) => {
-    setEditingUser(user);
-    setIsDialogOpen(true);
+  const [resources, setResources] = useState(initialResources);
+  const [editingResource, setEditingResource] = useState<Resource | null>(null);
+  const [isResourceDialogOpen, setIsResourceDialogOpen] = useState(false);
+  
+  const handleEditUserClick = (user: User) => {
+    setEditingUser({ ...user });
+    setIsUserDialogOpen(true);
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveUserChanges = () => {
     if (editingUser) {
       setUsers(users.map(u => u.email === editingUser.email ? editingUser : u));
     }
-    setIsDialogOpen(false);
+    setIsUserDialogOpen(false);
     setEditingUser(null);
   };
+  
+  const handleEditResourceClick = (resource: Resource) => {
+    setEditingResource({ ...resource });
+    setIsResourceDialogOpen(true);
+  };
+  
+  const handleSaveResourceChanges = () => {
+    if (editingResource) {
+        if(initialResources.find(r => r.title === editingResource.title && r.title !== (editingResource as any).originalTitle)) {
+             // This is an edit of an existing one.
+             setResources(resources.map(r => r.title === (editingResource as any).originalTitle ? editingResource : r));
+        } else {
+            // This is a new one
+            setResources([...resources, editingResource]);
+        }
+    }
+    setIsResourceDialogOpen(false);
+    setEditingResource(null);
+  }
+
+  const handleDeleteResource = (title: string) => {
+      setResources(resources.filter(r => r.title !== title));
+  }
+
+  const handleAddNewResource = () => {
+      setEditingResource({ title: '', description: '', href: '', category: ''});
+      setIsResourceDialogOpen(true);
+  }
 
   const moveNavItem = (index: number, direction: 'up' | 'down') => {
     const newNavItems = [...navItems];
@@ -141,6 +202,7 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="resources">Resources</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -276,7 +338,7 @@ export default function AdminSettingsPage() {
                         <Badge variant={user.role === 'Admin' ? 'default' : 'secondary'}>{user.role}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => handleEditClick(user)}>Edit</Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEditUserClick(user)}>Edit</Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -285,9 +347,61 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="resources">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Resource Links</CardTitle>
+                            <CardDescription>
+                                Add, edit, or remove links from the Resources page.
+                            </CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewResource}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Resource
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Category</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {resources.map((resource) => (
+                            <TableRow key={resource.title}>
+                            <TableCell>
+                                <p className="font-medium">{resource.title}</p>
+                                <p className="text-sm text-muted-foreground truncate max-w-xs">{resource.description}</p>
+                            </TableCell>
+                            <TableCell><Badge variant="secondary">{resource.category}</Badge></TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" asChild>
+                                    <a href={resource.href} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4" /></a>
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditResourceClick(resource)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteResource(resource.title)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
       </Tabs>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isUserDialogOpen} onOpenChange={setIsUserDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
@@ -352,11 +466,48 @@ export default function AdminSettingsPage() {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveChanges}>Save Changes</Button>
+            <Button variant="outline" onClick={() => setIsUserDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveUserChanges}>Save Changes</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isResourceDialogOpen} onOpenChange={setIsResourceDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingResource && initialResources.some(r => r.title === editingResource.title) ? 'Edit Resource' : 'Add New Resource'}</DialogTitle>
+            <DialogDescription>
+                Fill out the details for the resource link below.
+            </DialogDescription>
+            </DialogHeader>
+            {editingResource && (
+            <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="resource-title">Title</Label>
+                    <Input id="resource-title" value={editingResource.title} onChange={(e) => setEditingResource({ ...editingResource, title: e.target.value, originalTitle: editingResource.title })} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="resource-desc">Description</Label>
+                    <Textarea id="resource-desc" value={editingResource.description} onChange={(e) => setEditingResource({ ...editingResource, description: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="resource-href">URL</Label>
+                    <Input id="resource-href" value={editingResource.href} onChange={(e) => setEditingResource({ ...editingResource, href: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="resource-category">Category</Label>
+                    <Input id="resource-category" value={editingResource.category} onChange={(e) => setEditingResource({ ...editingResource, category: e.target.value })} />
+                </div>
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsResourceDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveResourceChanges}>Save Resource</Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
+
+    
