@@ -46,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ArrowUp, ArrowDown, Home, Calendar, Clapperboard, HandHelping, HeartHandshake, Users, BookOpen, LogIn, Sparkles, Mail, KeyRound, UserPlus, MessageSquare, Settings } from 'lucide-react';
 
 const initialUsers = [
   {
@@ -75,10 +76,28 @@ type User = {
   initials: string;
 };
 
+const initialNavItems = [
+    { href: "/", label: "Dashboard", icon: Home },
+    { href: "/events", label: "Events", icon: Calendar },
+    { href: "/sermons", label: "Sermons", icon: Clapperboard },
+    { href: "/giving", label: "Giving", icon: HandHelping },
+    { href: "/prayer", label: "Prayer Requests", icon: HeartHandshake },
+    { href: "/groups", label: "Groups", icon: Users },
+    { href: "/resources", label: "Resources", icon: BookOpen },
+    { href: "/check-in", label: "Pre-Check-In", icon: LogIn },
+    { href: "/welcome", label: "Welcome Tool", icon: Sparkles },
+    { href: "/inbox", label: "Inbox", icon: Mail },
+    { href: "/login", label: "Login", icon: KeyRound },
+    { href: "/register", label: "Register", icon: UserPlus },
+    { href: "/admin/messaging", label: "Messaging", icon: MessageSquare },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
+];
+
 export default function AdminSettingsPage() {
   const [users, setUsers] = useState(initialUsers);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [navItems, setNavItems] = useState(initialNavItems);
 
   const handleEditClick = (user: User) => {
     setEditingUser(user);
@@ -87,12 +106,24 @@ export default function AdminSettingsPage() {
 
   const handleSaveChanges = () => {
     if (editingUser) {
-      // In a real app, you'd save this to a database.
-      // For this prototype, we'll just update the local state.
       setUsers(users.map(u => u.email === editingUser.email ? editingUser : u));
     }
     setIsDialogOpen(false);
     setEditingUser(null);
+  };
+
+  const moveNavItem = (index: number, direction: 'up' | 'down') => {
+    const newNavItems = [...navItems];
+    const item = newNavItems[index];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (swapIndex < 0 || swapIndex >= newNavItems.length) {
+      return;
+    }
+
+    newNavItems.splice(index, 1);
+    newNavItems.splice(swapIndex, 0, item);
+    setNavItems(newNavItems);
   };
 
   return (
@@ -108,6 +139,7 @@ export default function AdminSettingsPage() {
         <TabsList>
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
+          <TabsTrigger value="navigation">Navigation</TabsTrigger>
           <TabsTrigger value="users">User Management</TabsTrigger>
         </TabsList>
 
@@ -172,6 +204,41 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="navigation">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sidebar Navigation</CardTitle>
+              <CardDescription>
+                Drag and drop to reorder the items in the main sidebar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {navItems.map((item, index) => (
+                  <div key={item.href} className="flex items-center justify-between rounded-md border bg-background p-3">
+                    <div className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => moveNavItem(index, 'up')} disabled={index === 0}>
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => moveNavItem(index, 'down')} disabled={index === navItems.length - 1}>
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+             <CardFooter>
+                <Button>Save Order</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
 
         <TabsContent value="users">
           <Card>
