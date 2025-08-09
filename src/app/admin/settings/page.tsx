@@ -360,7 +360,7 @@ export default function AdminSettingsPage() {
   const [termsContent, setTermsContent] = useState(initialTermsContent);
   const [privacyContent, setPrivacyContent] = useState(initialPrivacyContent);
   
-  const canEditContent = ['Admin', 'Editor'].includes(currentUserRole);
+  const canEditContent = ['Admin', 'Editor', 'Tribe Leader'].includes(currentUserRole);
 
   const resourceCategories = useMemo(() => ['All', ...Array.from(new Set(initialResources.map(r => r.category)))], [initialResources]);
   const groupCategories = useMemo(() => ['All', ...Array.from(new Set(initialGroups.map(g => g.category)))], [initialGroups]);
