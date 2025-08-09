@@ -8,12 +8,27 @@ export function Logo({ className }: { className?: string }) {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-6 w-6"
+        className="h-8 w-8"
       >
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+        <circle cx="12" cy="12" r="11" fill="black" stroke="none" />
+        <path
+          d="M7 20v-8l5-4 5 4v8"
+          stroke="white"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M12 7.5a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
+          stroke="white"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M14 8.5C14 9.32843 13.1046 10 12 10C10.8954 10 10 9.32843 10 8.5"
+           stroke="white"
+           strokeWidth="1"
+        />
       </svg>
       <span>Rendezvous Church</span>
     </div>
