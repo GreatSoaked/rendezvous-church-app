@@ -1,3 +1,6 @@
+
+"use client";
+
 import {
   Card,
   CardContent,
@@ -8,8 +11,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Calendar, User, BookOpen } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
 
-const groups = [
+const initialGroups = [
   {
     name: 'Young Adults Connect',
     schedule: 'Tuesdays at 7:00 PM',
@@ -55,6 +59,8 @@ const groups = [
 ];
 
 export default function GroupsPage() {
+    const [groups, setGroups] = useState(initialGroups);
+
   return (
     <div className="space-y-8">
       <div className="text-center">

@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, Wifi, PlusCircle } from 'lucide-react';
+import { PlayCircle, Wifi, PlusCircle, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import {
   Dialog,
@@ -71,26 +71,26 @@ type Sermon = {
 export default function SermonsPage() {
   const [sermons, setSermons] = useState<Sermon[]>(initialSermons);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newSermon, setNewSermon] = useState({
-      title: '',
-      speaker: '',
-      date: '',
-      series: '',
-      imageUrl: 'https://placehold.co/600x400.png',
-      dataAiHint: 'sermon church'
-  });
+  const [editingSermon, setEditingSermon] = useState<Sermon | null>(null);
 
-  const handleAddSermon = (e: React.FormEvent) => {
+  const handleSaveSermon = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would handle file upload to a server/storage
-    // and get back a URL. We'll use a placeholder.
-    const sermonToAdd = {
-        ...newSermon,
-        imageUrl: newSermon.imageUrl || 'https://placehold.co/600x400.png'
+    if (!editingSermon) return;
+
+    const isNew = !sermons.some(s => s.title === (editingSermon as any).originalTitle);
+    
+    if (isNew) {
+      setSermons([editingSermon, ...sermons]);
+    } else {
+      setSermons(sermons.map(s => s.title === (editingSermon as any).originalTitle ? editingSermon : s));
     }
-    setSermons(prevSermons => [sermonToAdd, ...prevSermons]);
+    
     setIsDialogOpen(false);
-    setNewSermon({
+    setEditingSermon(null);
+  };
+
+  const handleAddNewSermon = () => {
+    setEditingSermon({
         title: '',
         speaker: '',
         date: '',
@@ -98,7 +98,17 @@ export default function SermonsPage() {
         imageUrl: 'https://placehold.co/600x400.png',
         dataAiHint: 'sermon church'
     });
+    setIsDialogOpen(true);
   };
+
+  const handleEditSermon = (sermon: Sermon) => {
+    setEditingSermon({...sermon, originalTitle: sermon.title});
+    setIsDialogOpen(true);
+  }
+
+  const handleDeleteSermon = (title: string) => {
+    setSermons(sermons.filter(s => s.title !== title));
+  }
   
   return (
     <div className="space-y-12">
@@ -139,62 +149,58 @@ export default function SermonsPage() {
           <h2 className="text-2xl font-bold tracking-tight font-headline">Past Recordings</h2>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button onClick={handleAddNewSermon}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Add Sermon
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add a New Sermon</DialogTitle>
+                <DialogTitle>{editingSermon && sermons.some(s => s.title === editingSermon.title) ? 'Edit Sermon' : 'Add New Sermon'}</DialogTitle>
                 <DialogDescription>
-                  Fill out the details below to add a new sermon to the archive.
+                  Fill out the details below.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleAddSermon}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="title" className="text-right">
-                      Title
-                    </Label>
-                    <Input id="title" value={newSermon.title} onChange={(e) => setNewSermon({...newSermon, title: e.target.value})} className="col-span-3" required />
+              {editingSermon && (
+                <form onSubmit={handleSaveSermon}>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="title" className="text-right">Title</Label>
+                      <Input id="title" value={editingSermon.title} onChange={(e) => setEditingSermon({...editingSermon, title: e.target.value})} className="col-span-3" required />
+                    </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="speaker" className="text-right">Speaker</Label>
+                      <Input id="speaker" value={editingSermon.speaker} onChange={(e) => setEditingSermon({...editingSermon, speaker: e.target.value})} className="col-span-3" required/>
+                    </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="date" className="text-right">Date</Label>
+                      <Input id="date" type="date" value={editingSermon.date} onChange={(e) => setEditingSermon({...editingSermon, date: e.target.value})} className="col-span-3" required/>
+                    </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="series" className="text-right">Series</Label>
+                      <Input id="series" value={editingSermon.series} onChange={(e) => setEditingSermon({...editingSermon, series: e.target.value})} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="media" className="text-right">Photo/Video</Label>
+                      <Input id="media" type="file" className="col-span-3" accept="image/*,video/*" />
+                    </div>
                   </div>
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="speaker" className="text-right">
-                      Speaker
-                    </Label>
-                    <Input id="speaker" value={newSermon.speaker} onChange={(e) => setNewSermon({...newSermon, speaker: e.target.value})} className="col-span-3" required/>
-                  </div>
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="date" className="text-right">
-                      Date
-                    </Label>
-                    <Input id="date" type="date" value={newSermon.date} onChange={(e) => setNewSermon({...newSermon, date: e.target.value})} className="col-span-3" required/>
-                  </div>
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="series" className="text-right">
-                      Series
-                    </Label>
-                    <Input id="series" value={newSermon.series} onChange={(e) => setNewSermon({...newSermon, series: e.target.value})} className="col-span-3" />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="media" className="text-right">
-                      Photo/Video
-                    </Label>
-                    <Input id="media" type="file" className="col-span-3" accept="image/*,video/*" />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                  <Button type="submit">Add Sermon</Button>
-                </DialogFooter>
-              </form>
+                  <DialogFooter>
+                    <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                    <Button type="submit">Save</Button>
+                  </DialogFooter>
+                </form>
+              )}
             </DialogContent>
           </Dialog>
         </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {sermons.map((sermon) => (
-            <Card key={sermon.title} className="flex flex-col">
-              <CardContent className="p-0">
+            <Card key={sermon.title} className="flex flex-col group">
+              <CardContent className="p-0 relative">
+                <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                    <Button size="icon" variant="secondary" onClick={() => handleEditSermon(sermon)}><Pencil className="h-4 w-4" /></Button>
+                    <Button size="icon" variant="destructive" onClick={() => handleDeleteSermon(sermon.title)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
                 <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
                     <Image
                     src={sermon.imageUrl}

@@ -1,3 +1,6 @@
+
+"use client";
+
 import {
   Card,
   CardContent,
@@ -7,8 +10,9 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin } from 'lucide-react';
+import { useState } from 'react';
 
-const events = [
+const initialEvents = [
   {
     title: 'Sunday Morning Worship',
     date: 'Every Sunday',
@@ -40,6 +44,8 @@ const events = [
 ];
 
 export default function EventsPage() {
+  const [events, setEvents] = useState(initialEvents);
+  
   return (
     <div className="space-y-8">
       <div className="text-center">

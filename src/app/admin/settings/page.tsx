@@ -129,6 +129,59 @@ type Resource = {
   category: string;
 };
 
+const initialEvents = [
+  {
+    title: 'Sunday Morning Worship',
+    date: 'Every Sunday',
+    time: '10:00 AM - 11:30 AM',
+    location: 'Main Sanctuary',
+    description: 'Join us for a time of worship, teaching, and fellowship.',
+  },
+  {
+    title: 'Youth Group Night',
+    date: 'Every Wednesday',
+    time: '7:00 PM - 8:30 PM',
+    location: 'Youth Hall',
+    description: 'A fun and engaging night for students from 6th to 12th grade.',
+  },
+];
+type Event = typeof initialEvents[0];
+
+const initialSermons = [
+  {
+    title: 'The Foundation of Faith',
+    speaker: 'Pastor John Smith',
+    date: 'August 11, 2024',
+    series: 'Building a Strong Life',
+    imageUrl: 'https://placehold.co/600x400.png',
+  },
+  {
+    title: 'Living in Grace',
+    speaker: 'Pastor John Smith',
+    date: 'August 4, 2024',
+    series: 'Building a Strong Life',
+    imageUrl: 'https://placehold.co/600x400.png',
+  },
+];
+type Sermon = typeof initialSermons[0];
+
+const initialGroups = [
+  {
+    name: 'Young Adults Connect',
+    schedule: 'Tuesdays at 7:00 PM',
+    leader: 'John & Jane Smith',
+    category: 'Small Group',
+    material: 'Book of Romans',
+  },
+  {
+    name: 'Men\'s Bible Study',
+    schedule: 'Saturdays at 8:00 AM',
+    leader: 'David Chen',
+    category: 'Bible Study',
+    material: 'The Pursuit of Holiness',
+  },
+];
+type Group = typeof initialGroups[0];
 
 export default function AdminSettingsPage() {
   const [users, setUsers] = useState(initialUsers);
@@ -139,6 +192,19 @@ export default function AdminSettingsPage() {
   const [resources, setResources] = useState(initialResources);
   const [editingResource, setEditingResource] = useState<Resource | null>(null);
   const [isResourceDialogOpen, setIsResourceDialogOpen] = useState(false);
+
+  const [events, setEvents] = useState(initialEvents);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
+  
+  const [sermons, setSermons] = useState(initialSermons);
+  const [editingSermon, setEditingSermon] = useState<Sermon | null>(null);
+  const [isSermonDialogOpen, setIsSermonDialogOpen] = useState(false);
+
+  const [groups, setGroups] = useState(initialGroups);
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null);
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+
   
   const handleEditUserClick = (user: User) => {
     setEditingUser({ ...user });
@@ -160,12 +226,11 @@ export default function AdminSettingsPage() {
   
   const handleSaveResourceChanges = () => {
     if (editingResource) {
-        if(initialResources.find(r => r.title === editingResource.title && r.title !== (editingResource as any).originalTitle)) {
-             // This is an edit of an existing one.
-             setResources(resources.map(r => r.title === (editingResource as any).originalTitle ? editingResource : r));
-        } else {
-            // This is a new one
+        const isNew = !resources.some(r => r.title === (editingResource as any).originalTitle);
+        if (isNew) {
             setResources([...resources, editingResource]);
+        } else {
+             setResources(resources.map(r => r.title === (editingResource as any).originalTitle ? editingResource : r));
         }
     }
     setIsResourceDialogOpen(false);
@@ -180,6 +245,88 @@ export default function AdminSettingsPage() {
       setEditingResource({ title: '', description: '', href: '', category: ''});
       setIsResourceDialogOpen(true);
   }
+
+  const handleEditEventClick = (event: Event) => {
+    setEditingEvent({ ...event, originalTitle: event.title });
+    setIsEventDialogOpen(true);
+  };
+  
+  const handleSaveEventChanges = () => {
+    if (editingEvent) {
+        const isNew = !events.some(e => e.title === (editingEvent as any).originalTitle);
+        if (isNew) {
+            setEvents([...events, editingEvent]);
+        } else {
+             setEvents(events.map(e => e.title === (editingEvent as any).originalTitle ? editingEvent : e));
+        }
+    }
+    setIsEventDialogOpen(false);
+    setEditingEvent(null);
+  }
+
+  const handleDeleteEvent = (title: string) => {
+      setEvents(events.filter(e => e.title !== title));
+  }
+
+  const handleAddNewEvent = () => {
+      setEditingEvent({ title: '', date: '', time: '', location: '', description: ''});
+      setIsEventDialogOpen(true);
+  }
+
+  const handleEditSermonClick = (sermon: Sermon) => {
+    setEditingSermon({ ...sermon, originalTitle: sermon.title });
+    setIsSermonDialogOpen(true);
+  };
+
+  const handleSaveSermonChanges = () => {
+    if (editingSermon) {
+        const isNew = !sermons.some(s => s.title === (editingSermon as any).originalTitle);
+        if (isNew) {
+            setSermons([{...editingSermon, imageUrl: 'https://placehold.co/600x400.png'}, ...sermons]);
+        } else {
+             setSermons(sermons.map(s => s.title === (editingSermon as any).originalTitle ? editingSermon : s));
+        }
+    }
+    setIsSermonDialogOpen(false);
+    setEditingSermon(null);
+  }
+
+    const handleDeleteSermon = (title: string) => {
+      setSermons(sermons.filter(s => s.title !== title));
+  }
+
+  const handleAddNewSermon = () => {
+      setEditingSermon({ title: '', speaker: '', date: '', series: '', imageUrl: ''});
+      setIsSermonDialogOpen(true);
+  }
+  
+  const handleEditGroupClick = (group: Group) => {
+    setEditingGroup({ ...group, originalName: group.name });
+    setIsGroupDialogOpen(true);
+  };
+
+  const handleSaveGroupChanges = () => {
+    if (editingGroup) {
+        const isNew = !groups.some(g => g.name === (editingGroup as any).originalName);
+        if (isNew) {
+            setGroups([...groups, editingGroup]);
+        } else {
+             setGroups(groups.map(g => g.name === (editingGroup as any).originalName ? editingGroup : g));
+        }
+    }
+    setIsGroupDialogOpen(false);
+    setEditingGroup(null);
+  }
+
+  const handleDeleteGroup = (name: string) => {
+      setGroups(groups.filter(g => g.name !== name));
+  }
+
+  const handleAddNewGroup = () => {
+      setEditingGroup({ name: '', schedule: '', leader: '', category: '', material: ''});
+      setIsGroupDialogOpen(true);
+  }
+
 
   const moveNavItem = (index: number, direction: 'up' | 'down') => {
     const newNavItems = [...navItems];
@@ -206,16 +353,19 @@ export default function AdminSettingsPage() {
       <div className="text-center md:text-left">
         <h1 className="text-3xl font-bold tracking-tight font-headline">Admin Settings</h1>
         <p className="text-muted-foreground">
-          Manage your application's configuration and users.
+          Manage your application's configuration and content.
         </p>
       </div>
 
       <Tabs defaultValue="navigation" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="navigation">Navigation</TabsTrigger>
-          <TabsTrigger value="users">User Management</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="sermons">Sermons</TabsTrigger>
+          <TabsTrigger value="groups">Groups</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
         </TabsList>
 
@@ -366,6 +516,157 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        
+        <TabsContent value="events">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Events</CardTitle>
+                            <CardDescription>
+                                Add, edit, or remove events from the Events page.
+                            </CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewEvent}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Event
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {events.map((event) => (
+                            <TableRow key={event.title}>
+                            <TableCell>
+                                <p className="font-medium">{event.title}</p>
+                                <p className="text-sm text-muted-foreground truncate max-w-xs">{event.description}</p>
+                            </TableCell>
+                             <TableCell>{event.date} at {event.time}</TableCell>
+                            <TableCell>{event.location}</TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditEventClick(event)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteEvent(event.title)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="sermons">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Sermons</CardTitle>
+                            <CardDescription>
+                                Add, edit, or remove sermons from the Sermons page.
+                            </CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewSermon}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Sermon
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Speaker</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {sermons.map((sermon) => (
+                            <TableRow key={sermon.title}>
+                            <TableCell>
+                                <p className="font-medium">{sermon.title}</p>
+                            </TableCell>
+                            <TableCell>{sermon.speaker}</TableCell>
+                             <TableCell>{sermon.date}</TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditSermonClick(sermon)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteSermon(sermon.title)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="groups">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>Groups</CardTitle>
+                            <CardDescription>
+                                Add, edit, or remove groups from the Groups page.
+                            </CardDescription>
+                        </div>
+                        <Button onClick={handleAddNewGroup}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Group
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Category</TableHead>
+                             <TableHead>Leader</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {groups.map((group) => (
+                            <TableRow key={group.name}>
+                            <TableCell>
+                                <p className="font-medium">{group.name}</p>
+                            </TableCell>
+                            <TableCell><Badge variant="secondary">{group.category}</Badge></TableCell>
+                             <TableCell>{group.leader}</TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="ghost" size="icon" onClick={() => handleEditGroupClick(group)}>
+                                    <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteGroup(group.name)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </TabsContent>
 
         <TabsContent value="resources">
             <Card>
@@ -494,7 +795,7 @@ export default function AdminSettingsPage() {
       <Dialog open={isResourceDialogOpen} onOpenChange={setIsResourceDialogOpen}>
         <DialogContent>
             <DialogHeader>
-            <DialogTitle>{editingResource && initialResources.some(r => r.title === editingResource.title) ? 'Edit Resource' : 'Add New Resource'}</DialogTitle>
+            <DialogTitle>{editingResource && resources.some(r => r.title === editingResource.title) ? 'Edit Resource' : 'Add New Resource'}</DialogTitle>
             <DialogDescription>
                 Fill out the details for the resource link below.
             </DialogDescription>
@@ -525,8 +826,69 @@ export default function AdminSettingsPage() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+    <Dialog open={isEventDialogOpen} onOpenChange={setIsEventDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingEvent && events.some(e => e.title === editingEvent.title) ? 'Edit Event' : 'Add New Event'}</DialogTitle>
+            </DialogHeader>
+            {editingEvent && (
+            <div className="grid gap-4 py-4">
+                <Input placeholder="Title" value={editingEvent.title} onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value, originalTitle: editingEvent.title })} />
+                <Textarea placeholder="Description" value={editingEvent.description} onChange={(e) => setEditingEvent({ ...editingEvent, description: e.target.value })} />
+                <Input placeholder="Date" value={editingEvent.date} onChange={(e) => setEditingEvent({ ...editingEvent, date: e.target.value })} />
+                <Input placeholder="Time" value={editingEvent.time} onChange={(e) => setEditingEvent({ ...editingEvent, time: e.target.value })} />
+                <Input placeholder="Location" value={editingEvent.location} onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })} />
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEventDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveEventChanges}>Save Event</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isSermonDialogOpen} onOpenChange={setIsSermonDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingSermon && sermons.some(s => s.title === editingSermon.title) ? 'Edit Sermon' : 'Add New Sermon'}</DialogTitle>
+            </DialogHeader>
+            {editingSermon && (
+            <div className="grid gap-4 py-4">
+                <Input placeholder="Title" value={editingSermon.title} onChange={(e) => setEditingSermon({ ...editingSermon, title: e.target.value, originalTitle: editingSermon.title })} />
+                <Input placeholder="Speaker" value={editingSermon.speaker} onChange={(e) => setEditingSermon({ ...editingSermon, speaker: e.target.value })} />
+                <Input type="date" placeholder="Date" value={editingSermon.date} onChange={(e) => setEditingSermon({ ...editingSermon, date: e.target.value })} />
+                <Input placeholder="Series" value={editingSermon.series} onChange={(e) => setEditingSermon({ ...editingSermon, series: e.target.value })} />
+                 <Input type="file" />
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsSermonDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveSermonChanges}>Save Sermon</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+            <DialogTitle>{editingGroup && groups.some(g => g.name === editingGroup.name) ? 'Edit Group' : 'Add New Group'}</DialogTitle>
+            </DialogHeader>
+            {editingGroup && (
+            <div className="grid gap-4 py-4">
+                <Input placeholder="Name" value={editingGroup.name} onChange={(e) => setEditingGroup({ ...editingGroup, name: e.target.value, originalName: editingGroup.name })} />
+                <Input placeholder="Schedule" value={editingGroup.schedule} onChange={(e) => setEditingGroup({ ...editingGroup, schedule: e.target.value })} />
+                <Input placeholder="Leader" value={editingGroup.leader} onChange={(e) => setEditingGroup({ ...editingGroup, leader: e.target.value })} />
+                <Input placeholder="Category" value={editingGroup.category} onChange={(e) => setEditingGroup({ ...editingGroup, category: e.target.value })} />
+                <Input placeholder="Study Material" value={editingGroup.material} onChange={(e) => setEditingGroup({ ...editingGroup, material: e.target.value })} />
+            </div>
+            )}
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setIsGroupDialogOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveGroupChanges}>Save Group</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-    
